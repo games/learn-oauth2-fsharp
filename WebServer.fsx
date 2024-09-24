@@ -7,11 +7,13 @@
 open System
 open System.Security.Claims
 open System.IdentityModel.Tokens.Jwt
+open System.Security.Cryptography
 open Microsoft.AspNetCore.Builder
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.IdentityModel.Tokens
 open Serilog
 open Oxpecker
+open System.IO
 
 
 type Errors = string
@@ -59,6 +61,39 @@ let verifyJwt key (jwt: string) =
         Ok result
     with ex ->
         Error ex
+
+
+let encrypt (key: byte[]) (plainBytes: byte[]) =
+    use aes = Aes.Create(Key = key)
+    let ivBytes = aes.IV
+    let encryptor = aes.CreateEncryptor(aes.Key, aes.IV)
+    use ms = new MemoryStream()
+
+    do
+        use cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write)
+        use writer = new BinaryWriter(cs)
+        writer.Write(plainBytes)
+
+    let dataBytes = ms.ToArray()
+    let bytes = Array.zeroCreate<byte> (ivBytes.Length + dataBytes.Length)
+    Array.Copy(ivBytes, 0, bytes, 0, ivBytes.Length)
+    Array.Copy(dataBytes, 0, bytes, ivBytes.Length, dataBytes.Length)
+    bytes
+
+
+let decrypt (key: byte[]) (cipherBytes: byte[]) =
+    let ivBytes = Array.zeroCreate<byte> 16
+    let dataBytes = Array.zeroCreate<byte> (cipherBytes.Length - ivBytes.Length)
+    Array.Copy(cipherBytes, 0, ivBytes, 0, ivBytes.Length)
+    Array.Copy(cipherBytes, ivBytes.Length, dataBytes, 0, dataBytes.Length)
+
+    use aes = Aes.Create(Key = key, IV = ivBytes)
+    let decryptor = aes.CreateDecryptor(key, ivBytes)
+    use ms = new MemoryStream(dataBytes)
+    use cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read)
+    use reader = new StreamReader(cs)
+    let decrypted = reader.ReadToEnd()
+    decrypted
 
 
 let run (port: uint) (endpoints: Endpoint seq) =
