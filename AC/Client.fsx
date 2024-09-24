@@ -37,7 +37,12 @@ let index: EndpointHandler =
                 else
                     return! text body ctx
             else
-                return! redirectTo "/login" false ctx
+                let callbackUrl = WebUtility.UrlEncode $"{ClientServer}/callback"
+
+                let authUrl =
+                    $"{AuthServer}/login?ClientId={ClientId}&RedirectUrl={callbackUrl}&ResponseType=code"
+
+                return! redirectTo authUrl false ctx
         }
 
 
