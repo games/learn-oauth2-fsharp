@@ -1,0 +1,88 @@
+
+## References:
+
+https://medium.com/google-cloud/understanding-oauth2-and-building-a-basic-authorization-server-of-your-own-a-beginners-guide-cf7451a16f66
+
+
+
+## Oauth2 flows
+
+- Authorization Code
+- Resource Owner Password Credentials
+- Implicit
+- Client Credentials
+
+
+## Resource Owner Password Credetials
+
+- The client must be highly trusted, as it directly handles user credentials. In most cases, the client should be a first-party app.
+
+### Steps:
+
+1. The client prompts user to enter their credentials (for instance, a username/password combination)
+2. The client sends the credentials and it's own identification to the authorization server. The Authorization server validates the information, then returns an access token and optionally a refresh token.
+3. The client uses the access token to access resources on the resource server
+
+
+User --(1.enters credentials)--> Client <--(2.validate and returns an access token)--> Authorization Server
+                                  |
+                                  | 3. the client uses access token to access resource server
+                                  v
+                            Resource Server
+                                
+
+* Since the client sends the user's credentials, so the client has a chance to store without asking permission.
+
+
+
+## Authorization Code
+
+- The client must be able to interact with an user agent (browser) in the environment.
+
+1. The client prepares a link to the authorization server and opens the link for user in an user agent (browser). The link includes information that allows the authorization server to identify and respond to the client.
+2. User enters their credentials on the new page.
+3. Credentials are sent to authorization server via the user agent (browser).
+4. The authorization server validates the credentials and redirects user back to the client with an authorization code.
+5. The client talks with the authorization server, confirms its identify and exchanges the authorization code for an access token and optionally a refresh token.
+6. The client uses the access token to access resources on the resource server.
+
+
+User --(1.enter credentials)--> User Agent(browser) --(2.User agent send credentials to auth server)--> Authorization Server
+                                    ^                                                                           |
+                                    |                                                                           |
+                                    Client <------(3.validate and return authorization code via redirection)----|
+                                    |                                                                           |
+                                    |--(4.exchange authorization code for access token)-------------------------|
+                                    |
+                                    |--(5. Client  access token to access resource server)------- Resource Server
+
+
+* Adopt the PKCE technique and utilize code challenges and code verifiers to prevent authorization code injection (https://oauth.net/2/pkce/)
+
+
+
+## Implicit and Client Credentials
+
+* It is designed for single-page Javescript apps. It is vastly similar to the Authorization Code flow, except for the part involving authorization code.
+* Due to security concerns, in this flow the client no longer receives and authorization code from the authorization server, instead, after the user agent successfully transfer credentials, the authorization server returns access token directly to the client. Refresh token are not allowed in the Implicit flow.
+
+
+
+## Client Credentials flow
+
+* On the other hand, is closer to the Resource Owner Password Credentials flow. Clients in this flow use client IDs and secrets to identify themselves, and exchange them for access tokens with the authorization server.
+* Should not use refresh tokens in this flow either.
+
+
+
+## JWT 
+
+A JWT includes three parts:
+
+- A header describing the type of the token and the hasking algorithm it uses
+- A payload containing the data
+- Signature for verifying the token
+
+All the three parts should be Base64URl encoded
+
+Every time a JWT arrives at a server, the system first parse the JWT, and verifies if the algorithm specified in the header is supported, then it checks the signature to make sure that the JWT is valid, and at last, confirms that registered claims (if exist) are valid
