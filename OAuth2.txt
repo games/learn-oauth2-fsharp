@@ -86,3 +86,17 @@ A JWT includes three parts:
 All the three parts should be Base64URl encoded
 
 Every time a JWT arrives at a server, the system first parse the JWT, and verifies if the algorithm specified in the header is supported, then it checks the signature to make sure that the JWT is valid, and at last, confirms that registered claims (if exist) are valid
+
+
+## Keys
+
+private key:
+
+openssl genrsa -out private.pem 2048
+
+public key:
+
+openssl rsa -in private.pem -pubout -outform PEM -out public.pem
+
+
+openssl pkcs12 -export -out certificate.p12 -inkey private.pem -in public.pem
