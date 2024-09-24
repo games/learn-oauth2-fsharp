@@ -12,7 +12,7 @@ let grantAccess (client: RequestAuthorizationToken) =
 
         body () {
             h1 () { "Sign In" }
-            h3 () { $"{client.ClientId} is requesting access to your account" }
+            h3 () { $"[{client.ClientId}] is requesting access to your account" }
 
             form (action = "/signin", method = "post") {
                 div () { input (type' = "text", name = "username", placeholder = "Username") }
@@ -20,6 +20,7 @@ let grantAccess (client: RequestAuthorizationToken) =
                 div () { input (type' = "hidden", name = "clientId", value = client.ClientId) }
                 div () { input (type' = "hidden", name = "redirectUrl", value = client.RedirectUrl) }
                 input (type' = "submit", value = "Sign In")
+                div () { "user/password" }
             }
         }
     }
