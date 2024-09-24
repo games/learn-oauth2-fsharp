@@ -1,6 +1,5 @@
 #r @"nuget: FSharpPlus"
-#load "../WebServer.fsx"
-#load "./Prelude.fsx"
+#load "./WebServer.fsx"
 
 open Oxpecker
 open WebServer
@@ -11,7 +10,7 @@ open System.IO
 
 let AuthServerCertificate =
     let rsa = RSA.Create()
-    rsa.ImportFromPem(File.ReadAllText("../keys/public.pem"))
+    rsa.ImportFromPem(File.ReadAllText("./keys/public.pem"))
     RsaSecurityKey(rsa)
 
 
