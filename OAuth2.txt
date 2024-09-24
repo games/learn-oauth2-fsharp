@@ -13,7 +13,7 @@ https://medium.com/google-cloud/understanding-oauth2-and-building-a-basic-author
 - Client Credentials
 
 
-## Resource Owner Password Credetials
+## Resource Owner Password Credentials
 
 - The client must be highly trusted, as it directly handles user credentials. In most cases, the client should be a first-party app.
 
